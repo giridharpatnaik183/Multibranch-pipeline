@@ -13,6 +13,20 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps {
+                // Add your build steps here
+                // This could involve compiling, packaging, etc.
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Add your test execution steps here
+                // This could involve running unit tests, integration tests, etc.
+            }
+        }
+
         stage('Copy HTML to Tomcat') {
             steps {
                 script {
@@ -33,6 +47,14 @@ pipeline {
                     sh "mkdir -p ${tomcatWebappsDir}/${context}"
                     sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
                 }
+            }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                // Assuming Tomcat is running and accessible
+                def context = env.BRANCH_NAME.toLowerCase() // Use lowercase branch name as context
+                sh "cp -r . ${TOMCAT_WEBAPPS}/${context}" // Deploy the entire application
             }
         }
     }
