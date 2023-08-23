@@ -16,14 +16,14 @@ pipeline {
         stage('Build') {
             steps {
                 // Add your build steps here
-                sh 'your_build_command_here'
+                sh 'mvn clean install' // Replace with your actual build command
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Add your test execution steps here
-                sh 'your_test_command_here'
+                sh 'mvn test' // Replace with your actual test command
             }
         }
 
