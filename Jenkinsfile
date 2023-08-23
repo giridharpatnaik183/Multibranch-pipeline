@@ -49,7 +49,11 @@ pipeline {
     post {
         always {
             script {
-                currentBuild.result = currentBuild.resultIsBetterAs(Result.SUCCESS) ? Result.SUCCESS : currentBuild.result
+                if (currentBuild.resultIsBetterOrEqualTo(Result.SUCCESS)) {
+                    currentBuild.result = Result.SUCCESS
+                } else {
+                    currentBuild.result = Result.FAILURE
+                }
             }
         }
     }
