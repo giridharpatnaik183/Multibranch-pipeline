@@ -16,14 +16,12 @@ pipeline {
         stage('Build') {
             steps {
                 // Add your build steps here
-                // This could involve compiling, packaging, etc.
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Add your test execution steps here
-                // This could involve running unit tests, integration tests, etc.
             }
         }
 
