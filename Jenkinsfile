@@ -27,7 +27,7 @@ pipeline {
             }
         }
 
-        stage('Copy HTML to Tomcat') {
+        stage('Deploy to Tomcat') {
             steps {
                 script {
                     def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
