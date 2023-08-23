@@ -14,25 +14,37 @@ pipeline {
         }
 
         stage('Copy HTML to Tomcat') {
+            when {
+                expression {
+                    return env.BRANCH_NAME in ['dev', 'prod'] // Only run this stage for 'dev' and 'prod' branches
+                }
+            }
             steps {
                 script {
                     def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
                     def sourceHtmlPath
 
-                    // Determine the source index.html based on the branch
-                    if (env.BRANCH_NAME == 'Prod') {
+                    if (env.BRANCH_NAME == 'prod') {
                         sourceHtmlPath = 'index_prod.html'
-                    } else if (env.BRANCH_NAME == 'Dev') {
+                    } else if (env.BRANCH_NAME == 'dev') {
                         sourceHtmlPath = 'index_dev.html'
                     } else {
                         error("Unsupported branch: ${env.BRANCH_NAME}")
                     }
 
-                    // Copy the appropriate index.html to Tomcat in a separate context
-                    def context = env.BRANCH_NAME.toLowerCase() // Use lowercase branch name as context
+                    def context = env.BRANCH_NAME.toLowerCase()
+
                     sh "mkdir -p ${tomcatWebappsDir}/${context}"
                     sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
                 }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                currentBuild.result = currentBuild.resultIsBetterAs(Result.SUCCESS) ? Result.SUCCESS : currentBuild.result
             }
         }
     }
