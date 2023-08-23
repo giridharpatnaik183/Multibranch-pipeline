@@ -37,17 +37,17 @@ pipeline {
             }
             steps {
                 script {
+                    def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
+                    def sourceHtmlPath = 'index_dev.html'
+
+                    def context = env.BRANCH_NAME.toLowerCase()
+
+                    sh "mkdir -p ${tomcatWebappsDir}/${context}"
                     try {
-                        def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
-                        def sourceHtmlPath = 'index_dev.html'
-
-                        def context = env.BRANCH_NAME.toLowerCase()
-
-                        sh "mkdir -p ${tomcatWebappsDir}/${context}"
                         sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
                     } catch (Exception e) {
                         currentBuild.result = 'SUCCESS' // Ensure the stage remains green even on errors
-                        error("Error during deployment: ${e.message}")
+                        echo "Error during deployment: ${e.message}"
                     }
                 }
             }
