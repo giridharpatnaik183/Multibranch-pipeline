@@ -32,7 +32,9 @@ pipeline {
         stage('Deploy Dev on Tomcat') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'dev' // Only run this stage for 'dev' branch
+                    def deployDev = env.BRANCH_NAME == 'dev'
+                    echo "Deploy Dev on Tomcat: ${deployDev}"
+                    return deployDev
                 }
             }
             steps {
@@ -51,7 +53,9 @@ pipeline {
         stage('Deploy Prod on Tomcat') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'prod' // Only run this stage for 'prod' branch
+                    def deployProd = env.BRANCH_NAME == 'prod'
+                    echo "Deploy Prod on Tomcat: ${deployProd}"
+                    return deployProd
                 }
             }
             steps {
