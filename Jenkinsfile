@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        stage('Copy HTML to Tomcat') {
+        stage('Deploy on Tomcat') { // Updated stage name
             when {
                 expression {
                     return env.BRANCH_NAME in ['dev', 'prod'] // Only run this stage for 'dev' and 'prod' branches
