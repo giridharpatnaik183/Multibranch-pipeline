@@ -13,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build and Test') {
             when {
                 expression {
                     return env.BRANCH_NAME in ['dev', 'prod']
@@ -21,12 +21,15 @@ pipeline {
             }
             steps {
                 script {
-                    // Your build steps here
+                    // Your build and test steps here
+                    // For example:
+                    sh 'npm install'
+                    sh 'npm run test'
                 }
             }
         }
 
-        stage('Test') {
+        stage('Deploy to Tomcat') {
             when {
                 expression {
                     return env.BRANCH_NAME in ['dev', 'prod']
@@ -34,39 +37,10 @@ pipeline {
             }
             steps {
                 script {
-                    // Your test steps here
-                }
-            }
-        }
-
-        stage('Deploy Dev to Tomcat') {
-            when {
-                expression {
-                    return env.BRANCH_NAME == 'dev'
-                }
-            }
-            steps {
-                script {
                     def context = env.BRANCH_NAME.toLowerCase()
 
                     sh "mkdir -p ${TOMCAT_WEBAPPS}/${context}"
-                    sh "cp index_dev.html ${TOMCAT_WEBAPPS}/${context}/index.html"
-                }
-            }
-        }
-
-        stage('Deploy Prod to Tomcat') {
-            when {
-                expression {
-                    return env.BRANCH_NAME == 'prod'
-                }
-            }
-            steps {
-                script {
-                    def context = env.BRANCH_NAME.toLowerCase()
-
-                    sh "mkdir -p ${TOMCAT_WEBAPPS}/${context}"
-                    sh "cp index_prod.html ${TOMCAT_WEBAPPS}/${context}/index.html"
+                    sh "cp index_${context}.html ${TOMCAT_WEBAPPS}/${context}/index.html"
                 }
             }
         }
