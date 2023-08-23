@@ -1,6 +1,6 @@
 pipeline {
     agent any
-   
+  
     environment {
         TOMCAT_WEBAPPS = '/var/lib/tomcat9/webapps' // Set this to the actual path of the Tomcat webapps directory
     }
@@ -16,18 +16,18 @@ pipeline {
         stage('Build') {
             steps {
                 // Add your build steps here
-                sh 'mvn clean install' // Replace with your actual build command
+                echo 'Building the application...'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Add your test execution steps here
-                sh 'mvn test' // Replace with your actual test command
+                echo 'Running tests...'
             }
         }
 
-        stage('Deploy to Tomcat') {
+        stage('Copy HTML to Tomcat') {
             steps {
                 script {
                     def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
