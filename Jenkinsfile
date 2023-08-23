@@ -29,24 +29,35 @@ pipeline {
             }
         }
 
-        stage('Deploy on Tomcat') { // Updated stage name
+        stage('Deploy Dev on Tomcat') {
             when {
                 expression {
-                    return env.BRANCH_NAME in ['dev', 'prod'] // Only run this stage for 'dev' and 'prod' branches
+                    return env.BRANCH_NAME == 'dev' // Only run this stage for 'dev' branch
                 }
             }
             steps {
                 script {
                     def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
-                    def sourceHtmlPath
+                    def sourceHtmlPath = 'index_dev.html'
 
-                    if (env.BRANCH_NAME == 'prod') {
-                        sourceHtmlPath = 'index_prod.html'
-                    } else if (env.BRANCH_NAME == 'dev') {
-                        sourceHtmlPath = 'index_dev.html'
-                    } else {
-                        error("Unsupported branch: ${env.BRANCH_NAME}")
-                    }
+                    def context = env.BRANCH_NAME.toLowerCase()
+
+                    sh "mkdir -p ${tomcatWebappsDir}/${context}"
+                    sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
+                }
+            }
+        }
+
+        stage('Deploy Prod on Tomcat') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'prod' // Only run this stage for 'prod' branch
+                }
+            }
+            steps {
+                script {
+                    def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
+                    def sourceHtmlPath = 'index_prod.html'
 
                     def context = env.BRANCH_NAME.toLowerCase()
 
