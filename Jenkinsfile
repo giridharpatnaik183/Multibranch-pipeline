@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+  
     environment {
         TOMCAT_WEBAPPS = '/var/lib/tomcat9/webapps' // Set this to the actual path of the Tomcat webapps directory
     }
@@ -13,70 +13,26 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                // Add your testing steps here
-                sh 'echo "Running tests"'
-                // Example: Run unit tests, integration tests, etc.
-            }
-        }
-
-        stage('Build') {
-            steps {
-                // Add your build steps here
-                sh 'echo "Building the application"'
-                // Example: Compile code, package artifacts, etc.
-            }
-        }
-
-        stage('Deploy Dev on Tomcat') {
-            when {
-                expression {
-                    return env.BRANCH_NAME == 'dev' // Only run this stage for 'dev' branch
-                }
-            }
-            steps {
-                script {
-                    try {
-                        def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
-                        def sourceHtmlPath = 'index_dev.html'
-
-                        def context = env.BRANCH_NAME.toLowerCase()
-
-                        sh "mkdir -p ${tomcatWebappsDir}/${context}"
-                        sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
-                    } catch (Exception e) {
-                        currentBuild.result = 'SUCCESS' // Ensure the stage remains green even on errors
-                        error("Error during deployment: ${e.message}")
-                    }
-                }
-            }
-        }
-
-        stage('Deploy Prod on Tomcat') {
-            when {
-                expression {
-                    return env.BRANCH_NAME == 'prod' // Only run this stage for 'prod' branch
-                }
-            }
+        stage('Copy HTML to Tomcat') {
             steps {
                 script {
                     def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
-                    def sourceHtmlPath = 'index_prod.html'
+                    def sourceHtmlPath
 
-                    def context = env.BRANCH_NAME.toLowerCase()
+                    // Determine the source index.html based on the branch
+                    if (env.BRANCH_NAME == 'Prod') {
+                        sourceHtmlPath = 'index_prod.html'
+                    } else if (env.BRANCH_NAME == 'Dev') {
+                        sourceHtmlPath = 'index_dev.html'
+                    } else {
+                        error("Unsupported branch: ${env.BRANCH_NAME}")
+                    }
 
+                    // Copy the appropriate index.html to Tomcat in a separate context
+                    def context = env.BRANCH_NAME.toLowerCase() // Use lowercase branch name as context
                     sh "mkdir -p ${tomcatWebappsDir}/${context}"
                     sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
                 }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                currentBuild.result = 'SUCCESS'
             }
         }
     }
