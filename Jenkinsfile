@@ -6,16 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Print Debug Info') {
-            steps {
-                script {
-                    echo "Branch Name: ${env.BRANCH_NAME}"
-                    echo "Deploy Dev on Tomcat: ${env.BRANCH_NAME == 'dev'}"
-                    echo "Deploy Prod on Tomcat: ${env.BRANCH_NAME == 'prod'}"
-                }
-            }
-        }
-
         stage('Checkout') {
             steps {
                 // Checkout the code from the Git repository
@@ -23,60 +13,60 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                // Add your testing steps here
-                sh 'echo "Running tests"'
-                // Example: Run unit tests, integration tests, etc.
-            }
-        }
-
         stage('Build') {
-            steps {
-                // Add your build steps here
-                sh 'echo "Building the application"'
-                // Example: Compile code, package artifacts, etc.
-            }
-        }
-
-        stage('Deploy Dev on Tomcat') {
             when {
                 expression {
-                    def deployDev = env.BRANCH_NAME == 'dev'
-                    echo "Deploy Dev on Tomcat: ${deployDev}"
-                    return deployDev
+                    return env.BRANCH_NAME in ['dev', 'prod']
                 }
             }
             steps {
                 script {
-                    def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
-                    def sourceHtmlPath = 'index_dev.html'
-
-                    def context = env.BRANCH_NAME.toLowerCase()
-
-                    sh "mkdir -p ${tomcatWebappsDir}/${context}"
-                    sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
+                    // Your build steps here
                 }
             }
         }
 
-        stage('Deploy Prod on Tomcat') {
+        stage('Test') {
             when {
                 expression {
-                    def deployProd = env.BRANCH_NAME == 'prod'
-                    echo "Deploy Prod on Tomcat: ${deployProd}"
-                    return deployProd
+                    return env.BRANCH_NAME in ['dev', 'prod']
                 }
             }
             steps {
                 script {
-                    def tomcatWebappsDir = "/var/lib/tomcat9/webapps"
-                    def sourceHtmlPath = 'index_prod.html'
+                    // Your test steps here
+                }
+            }
+        }
 
+        stage('Deploy Dev to Tomcat') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'dev'
+                }
+            }
+            steps {
+                script {
                     def context = env.BRANCH_NAME.toLowerCase()
 
-                    sh "mkdir -p ${tomcatWebappsDir}/${context}"
-                    sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}/${context}"
+                    sh "cp index_dev.html ${TOMCAT_WEBAPPS}/${context}/index.html"
+                }
+            }
+        }
+
+        stage('Deploy Prod to Tomcat') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'prod'
+                }
+            }
+            steps {
+                script {
+                    def context = env.BRANCH_NAME.toLowerCase()
+
+                    sh "mkdir -p ${TOMCAT_WEBAPPS}/${context}"
+                    sh "cp index_prod.html ${TOMCAT_WEBAPPS}/${context}/index.html"
                 }
             }
         }
@@ -85,7 +75,7 @@ pipeline {
     post {
         always {
             script {
-                currentBuild.result = 'SUCCESS'
+                currentBuild.result = currentBuild.resultIsBetterAs(Result.SUCCESS) ? Result.SUCCESS : currentBuild.result
             }
         }
     }
