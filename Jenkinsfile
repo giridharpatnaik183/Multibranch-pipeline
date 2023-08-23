@@ -6,6 +6,16 @@ pipeline {
     }
 
     stages {
+        stage('Print Debug Info') {
+            steps {
+                script {
+                    echo "Branch Name: ${env.BRANCH_NAME}"
+                    echo "Deploy Dev on Tomcat: ${env.BRANCH_NAME == 'dev'}"
+                    echo "Deploy Prod on Tomcat: ${env.BRANCH_NAME == 'prod'}"
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 // Checkout the code from the Git repository
