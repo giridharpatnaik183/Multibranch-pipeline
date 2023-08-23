@@ -13,6 +13,22 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            steps {
+                // Add your testing steps here
+                sh 'echo "Running tests"'
+                // Example: Run unit tests, integration tests, etc.
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Add your build steps here
+                sh 'echo "Building the application"'
+                // Example: Compile code, package artifacts, etc.
+            }
+        }
+
         stage('Copy HTML to Tomcat') {
             when {
                 expression {
