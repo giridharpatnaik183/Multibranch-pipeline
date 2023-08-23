@@ -43,12 +43,7 @@ pipeline {
                     def context = env.BRANCH_NAME.toLowerCase()
 
                     sh "mkdir -p ${tomcatWebappsDir}/${context}"
-                    try {
-                        sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
-                    } catch (Exception e) {
-                        currentBuild.result = 'SUCCESS' // Ensure the stage remains green even on errors
-                        echo "Error during deployment: ${e.message}"
-                    }
+                    sh "cp ${sourceHtmlPath} ${tomcatWebappsDir}/${context}/index.html"
                 }
             }
         }
